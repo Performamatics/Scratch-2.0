@@ -160,6 +160,7 @@ public class Specs {
 		// sound
 		["Send To Server for Phrase %d",		"h", 3, "sendToServer:",						0],			// Matt Vaughan Sep/1/2012
 		["Matt Vaughan Test play %d for %n", 	" ", 3, "test:",							60, 0.5],	// Matt Vaughan Aug/23/2012
+		["Play Chord",							"c", 3, "playChord:"],										// Angelo Gamarra Sep/6/2012
 		
 		["play sound %m.sound",					" ", 3, "playSound:",						"pop"],
 		["play sound %m.sound until done",		" ", 3, "doPlaySoundAndWait",				"pop"],

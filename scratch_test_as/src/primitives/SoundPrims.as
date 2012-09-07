@@ -38,6 +38,10 @@ public class SoundPrims {
 		primTable["sendToServer:"]					= primSendToServer;
 		/* END OF TEST */
 		
+		/* TEST - Angelo Gamarra */
+		primTable["playChord:"]						= primPlayChord;
+		/* END OF TEST */
+		
 		primTable["changeVolumeBy:"]	= primChangeVolume;
 		primTable["setVolumeTo:"]		= primSetVolume;
 		primTable["volume"]				= primVolume;
@@ -192,6 +196,17 @@ public class SoundPrims {
 		}
 		else {
 			interp.checkTimer();
+		}
+	}
+	
+	// Incomplete test function for playChord Block (needs check statements, note synchronization, and server message) - Angelo Gamarra Sept/6/2012
+	private function primPlayChord( b:Block ):void {
+		
+		var tmpB:Block = b.subStack1;
+		
+		while ( tmpB ) {
+			primPlayNote( tmpB );
+			tmpB = tmpB.nextBlock;
 		}
 	}
 /* END OF LAPTOP ORCHESTRA CODE */	
