@@ -1,0 +1,93 @@
+<languageVersion: 1.0;>
+
+kernel diff
+<	vendor : "MIT Media Laboratory";
+	namespace : "filters";
+	version : 1;
+	description : "Sense colors based on hue/saturation. Does not handle alpha.";
+>
+{
+	parameter float hueThreshold;
+	parameter float satThreshold;
+	parameter float briThreshold;
+	parameter float3 hsv0;
+	parameter float4 rgb0;
+	parameter float3 hsv1;
+	parameter float4 rgb1;
+	parameter float3 hsv2;
+	parameter float4 rgb2;
+	parameter float3 hsv3;
+	parameter float4 rgb3;
+	parameter float3 hsv4;
+	parameter float4 rgb4;
+	parameter float3 hsv5;
+	parameter float4 rgb5;
+
+	input image4 src;
+	output float4 dst;
+
+	void evaluatePixel() {
+		float diffHue, diffSat, diffBri;
+		float4 pix = sampleNearest(src, outCoord());
+		float r = pix.r;
+		float g = pix.g;
+		float b = pix.b;
+		// compute h, s, v
+		float h, s;
+		float v = max(r, max(g, b));
+		float span = v - min(r, min(g, b));
+		if (span == 0.0) {
+			h = s = 0.0; // grayscale
+		} else {
+			if (r == v) h = 60.0 * ((g - b) / span);
+			else if (g == v) h = 120.0 + (60.0 * ((b - r) / span));
+			else if (b == v) h = 240.0 + (60.0 * ((r - g) / span));
+			s = span / v;
+		}
+
+		dst.argb = float4(1.0, v, v, v); // default to grayscale if no color match
+
+		if (abs(s - hsv0[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv0[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv0[2]) <= briThreshold))
+				dst.argb = rgb0;
+		}
+
+		if (abs(s - hsv1[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv1[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv1[2]) <= briThreshold))
+				dst.argb = rgb1;
+		}
+
+		if (abs(s - hsv2[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv2[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv2[2]) <= briThreshold))
+				dst.argb = rgb2;
+		}
+
+		if (abs(s - hsv3[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv3[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv3[2]) <= briThreshold))
+				dst.argb = rgb3;
+		}
+
+		if (abs(s - hsv4[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv4[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv4[2]) <= briThreshold))
+				dst.argb = rgb4;
+		}
+
+		if (abs(s - hsv5[1]) <= satThreshold) {
+			diffHue = abs(mod(h - hsv5[0], 360.0));
+			if (diffHue > 180.0) diffHue = 360.0 - diffHue;
+			if ((diffHue <= hueThreshold) && (abs(v - hsv5[2]) <= briThreshold))
+				dst.argb = rgb5;
+		}
+
+	}
+}

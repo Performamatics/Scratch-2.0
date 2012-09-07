@@ -1,0 +1,35 @@
+<languageVersion: 1.0;>
+
+kernel rgbdiff
+<	vendor : "MIT Media Laboratory";
+	namespace : "filters";
+	version : 1;
+	description : "Scratch rgb difference";
+>
+{
+
+	parameter float refR;
+	parameter float refG;
+	parameter float refB;
+	parameter float rgbThreshold;
+
+	input image4 src;
+	output float4 dst;
+
+	void evaluatePixel() {
+		float4 pix = sampleNearest(src, outCoord());
+		if (pix.a == 0.0) {
+			dst.a = 0.0;
+		} else {
+			float diffR = pix.r - refR;
+			float diffG = pix.g - refG;
+			float diffB = pix.b - refB;
+			float dist = sqrt((diffR * diffR) + (diffG * diffG) + (diffB * diffB));
+            if (dist < rgbThreshold) {
+				dst = pix;
+			} else {
+                dst.a = 0.0;
+            }
+		}
+	}
+}
