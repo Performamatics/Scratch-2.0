@@ -208,12 +208,30 @@ package primitives {
 		
 		// Incomplete test function for playChord Block (needs check statements, note synchronization, and server message) - Angelo Gamarra Sept/6/2012
 		private function primPlayChord( b:Block ):void {
-			
+
 			var tmpB:Block = b.subStack1;
 			
-			while ( tmpB ) {
-				primPlayNote( tmpB );
+			while ( tmpB != null ) {
+				
+				playSoundBlock( tmpB );
 				tmpB = tmpB.nextBlock;
+			}
+		}
+		
+		private function playSoundBlock( b:Block ):void {
+			var tempS:String = b.op;
+			
+			if ( tempS == "playSound:" ) {
+				primPlaySound( b );
+			}
+			else if ( tempS == "doPlaySoundAndWait" ) {
+				primPlaySoundUntilDone( b );
+			}
+			else if ( tempS == "drum:duration:elapsed:from:" ) {
+				primPlayDrum( b );
+			}
+			else if ( tempS == "noteOn:duration:elapsed:from:" ) {
+				primPlayNote( b );
 			}
 		}
 		/* END OF LAPTOP ORCHESTRA CODE ************************/	
