@@ -162,6 +162,7 @@ public class Specs {
 		["Send To Server at %s",				"h", 13, "sendToServer:",					"127.0.0.1"],		// Matt Vaughan Sep/1/2012
 		["Play on Server %d for %n", 			" ", 13, "test:",							60, 0.5],			// Matt Vaughan Aug/23/2012
 		["Sets server instrument to %d",		" ", 13, "midiInstrument:",					1],					// duplicate of setInstrument
+		["Play Chord",							"c", 13, "playChord:"],											// Angelo Gamarra Sep/6/2012
 		
 		// sound
 		["play sound %m.sound",					" ", 3, "playSound:",						"pop"],
