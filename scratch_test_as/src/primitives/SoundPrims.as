@@ -206,13 +206,42 @@ public class SoundPrims {
 		}
 	}
 	
-	// Incomplete test function for playChord Block (needs note synchronization and iteration of blocks) - Angelo Gamarra Sept/6/2012
+	// Incomplete test function for playChord Block (needs note synchronization and iteration of numerous blocks) - Angelo Gamarra Sept/21/2012
 	private function primPlayChord( b:Block ):void {
 		
+		var s:ScratchObj = interp.targetObj();
+		if ( s == null ) return;
+		
+		if ( b.topBlock().op == "sendToServer:" ) {
+			if ( interp.activeThread.firstTime ) {
+			
+				var tmpB:Block = b.subStack1;
+				var key:int = 0;
+				var beats:Number = 0.0;
+				var tmpBeat:Number = 0.0;
+				var broadcastString:String = "!@addchord(";
+			
+				while ( tmpB != null ) {
+					key = interp.numarg(tmpB, 0);
+					beats = (((tmpBeat = interp.numarg(tmpB, 1)) > beats) ? tmpBeat : beats);
+					broadcastString = "" + broadcastString + key + ",";
+				
+					tmpB = tmpB.nextBlock;
+				}
+				broadcastString = "" + broadcastString + beats + ")";
+			
+				SocketConnect.getInstance().sendData(broadcastString);
+				interp.startTimer(0.01);
+			}
+			else {
+				interp.checkTimer();
+			}
+		}
+		/*
 		var tmpB:Block = b.subStack1;
 		
 		if ( tmpB != null )
-			playOrchestraBlock( tmpB );
+			playOrchestraBlock( tmpB );*/
 	}
 	
 	private function playOrchestraBlock( b:Block ):void {
