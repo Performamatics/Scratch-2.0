@@ -54,8 +54,23 @@ public class BlockMenus implements DragClient {
 		if (menuName == 'spriteOrStage') menuHandler.spriteMenu(evt, false, false, true);
 		if (menuName == 'touching') menuHandler.spriteMenu(evt, true, true, false);
 		if (menuName == 'varMenu') menuHandler.varMenu(evt);
+		
+		// Laptop Orchestra Menus
+		if (menuName == 'midinote') menuHandler.midinoteMenu(evt);
 	}
-
+	
+	/****** Beginning of Laptop Orchestra Menu Functions ******/
+	public function midinoteMenu(evt:MouseEvent):void {
+		var m:Menu = new Menu(setBlockArg);
+		for (var i:int = 60; i < 75; i++) {
+			var n:int = i ;
+			var s:String = "" + n;
+			m.addItem(s, n);
+		}
+		m.showOnStage(block.stage, evt.stageX, evt.stageY);
+	}
+	/****** End of Laptop Orchestra Menu Functions ******/
+	
 	public function BlockMenus(block:Block, blockArg:BlockArg, foo:int) {
 		this.blockArg = blockArg;
 		this.block = block;
