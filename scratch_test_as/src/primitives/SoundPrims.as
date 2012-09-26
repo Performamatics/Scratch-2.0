@@ -17,9 +17,12 @@ public class SoundPrims {
 	private var app:Scratch;
 	private var interp:Interpreter;
 
+	private var interpWait:Number;	// how long to pause to not overflow the sockets...
+	
 	public function SoundPrims(app:Scratch, interpreter:Interpreter) {
 		this.app = app;
 		this.interp = interpreter;
+		interpWait = 0.001;
 	}
 
 	public function addPrimsTo(primTable:Object):void {
@@ -34,7 +37,7 @@ public class SoundPrims {
 		primTable["midiInstrument:"]				= primSetInstrument;
 		
 		/* TEST - Matt Vaughan */
-		primTable["test:"]							= primTest;
+		primTable["addNote:"]						= primAddNote;
 		primTable["sendToServer:"]					= primSendToServer;
 		/* END OF TEST */
 		
@@ -164,14 +167,14 @@ public class SoundPrims {
 		
 		// added by Matt Vaughan -- sends data to server!!! or plays the blocks locally if there is no special hat
 		if ( b.topBlock().op == "sendToServer:" ) {
-			primTestSend( b );
+			primAddNote( b );
 		}
 		else {
 			primPlayNote( b );	
 		}
 	}
 	
-	private function primTestSend( b:Block ):void {
+	private function primAddNote( b:Block ):void {
 		var s:ScratchObj = interp.targetObj();
 		if (s == null) return;
 		if (interp.activeThread.firstTime) {
@@ -181,7 +184,7 @@ public class SoundPrims {
 			var broadcastString:String = new String("!@addnote(" + key + "," + beats +")" );
 			
 			SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
-			interp.startTimer(0.01);					// execution time... so we don't flood the socket causing an exception on the server side
+			interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
 		} else {
 			interp.checkTimer();						// Checking to see that we're done executing this block - Matt Vaughan Aug/17/2012
 		}		
@@ -198,8 +201,9 @@ public class SoundPrims {
 				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
 			}
 			
-			SocketConnect.getInstance().sendData( "!@clearphrase()" ); 
-			interp.startTimer(0.01);
+			SocketConnect.getInstance().sendData( "!@clearphrase()" );						// clears any phrases currently loaded\
+			SocketConnect.getInstance().sendData("!@clearphrase(@+(@currentphrase(),1))");	// clears the next phrase...
+			interp.startTimer( interpWait );
 		}
 		else {
 			interp.checkTimer();
@@ -231,7 +235,7 @@ public class SoundPrims {
 				broadcastString = "" + broadcastString + beats + ")";
 			
 				SocketConnect.getInstance().sendData(broadcastString);
-				interp.startTimer(0.01);
+				interp.startTimer( interpWait );
 			}
 			else {
 				interp.checkTimer();
@@ -247,7 +251,7 @@ public class SoundPrims {
 	private function playOrchestraBlock( b:Block ):void {
 		var tempS:String = b.op;
 		
-		if ( tempS == "test:" ) {
+		if ( tempS == "addNote:" ) {
 			primTest( b );
 		}
 	}

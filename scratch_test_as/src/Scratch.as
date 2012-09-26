@@ -827,7 +827,7 @@ browserTrace('SWF load project id: ' + projectID + ' owner: ' + owner + ' title:
 	}
 
 	private function unloadFromJS():void {
-browserTrace('JS called ASunload');
+		browserTrace('JS called ASunload');
 		saveProject(null, false);
 	}
 
