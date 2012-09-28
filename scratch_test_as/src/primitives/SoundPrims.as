@@ -43,6 +43,7 @@ public class SoundPrims {
 		
 		/* TEST - Angelo Gamarra */
 		primTable["playChord:"]						= primPlayChord;
+		primTable["sendFuturePhrase:"]				= primSendFuturePhrase;
 		/* END OF TEST */
 		
 		primTable["changeVolumeBy:"]	= primChangeVolume;
@@ -169,6 +170,9 @@ public class SoundPrims {
 		if ( b.topBlock().op == "sendToServer:" ) {
 			primAddNote( b );
 		}
+		else if ( b.topBlock().op == "sendFuturePhrase:" ) {
+			primAddFutureNote( b );
+		}
 		else {
 			primPlayNote( b );	
 		}
@@ -190,6 +194,24 @@ public class SoundPrims {
 		}		
 	}
 	
+	// new future note function. similar to primAddNote but with two more arguments
+	private function primAddFutureNote( b:Block ):void {
+		/*var s:ScratchObj = interp.targetObj();
+		if (s == null) return;
+		if (interp.activeThread.firstTime) {
+			var key:int = interp.numarg(b, 0);
+			var beats:Number = interp.numarg(b, 1);
+			var startNum:int = interp.numarg( b.topBlock(), 0 );
+			var endNum:int   = interp.numarg( b.topBlock(), 1 );
+			var broadcastString:String = new String("!@addfuturenote(" + key + "," + beats + "," + startNum + "," + endNum + ")" );
+			
+			SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
+			interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
+		} else {
+			interp.checkTimer();						// Checking to see that we're done executing this block - Matt Vaughan Aug/17/2012
+		}*/
+	}
+	
 	private function primSendToServer( b:Block ):void {
 		
 		var s:ScratchObj = interp.targetObj();
@@ -203,6 +225,28 @@ public class SoundPrims {
 			
 			SocketConnect.getInstance().sendData( "!@clearphrase()" );						// clears any phrases currently loaded\
 			SocketConnect.getInstance().sendData("!@clearphrase(@+(@currentphrase(),1))");	// clears the next phrase...
+			interp.startTimer( interpWait );
+		}
+		else {
+			interp.checkTimer();
+		}
+	}
+	
+	private function primSendFuturePhrase( b:Block ):void {
+		
+		var s:ScratchObj = interp.targetObj();
+		if ( s == null ) return;
+		if ( interp.activeThread.firstTime ) {
+			
+			var startingMeasure:int = interp.numarg(b, 0);
+			var endingMeasure:int = interp.numarg(b, 1);
+			var hostAddr:String = interp.arg( b, 2 );				// address of host from argument
+			if ( ! SocketConnect.getInstance().isConnected() ) {
+				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
+			}
+			
+			SocketConnect.getInstance().sendData("!@clearphrase()");						// clears any phrases currently loaded\
+			SocketConnect.getInstance().sendData("!@clearphrase(@+(@currentphrase()," + endingMeasure + "))");	// clears the future phrase...
 			interp.startTimer( interpWait );
 		}
 		else {
