@@ -201,8 +201,10 @@ public class SoundPrims {
 				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
 			}
 			
-			SocketConnect.getInstance().sendData( "!@clearphrase()" );						// clears any phrases currently loaded\
-			SocketConnect.getInstance().sendData("!@clearphrase(@+(@currentphrase(),1))");	// clears the next phrase...
+			SocketConnect.getInstance().sendData( "!@clearphrase()" );						// clears any phrases currently loaded
+			//SocketConnect.getInstance().sendData("!@clearphrase(@+(@currentphrase(),1))");	// clears the next phrase... THE OLD WAY
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase(),1))");	// clears the next phrase... THE NEW WAY
+
 			interp.startTimer( interpWait );
 		}
 		else {
