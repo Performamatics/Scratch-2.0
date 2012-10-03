@@ -206,7 +206,7 @@ public class Interpreter {
 		}
 		return b.opFunction(b);
 	}
-
+	
 	public function arg(b:Block, i:int):* {
 		return (b.args[i] is BlockArg) ?
 			BlockArg(b.args[i]).argValue : evalCmd(Block(b.args[i]));
