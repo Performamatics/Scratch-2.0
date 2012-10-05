@@ -37,7 +37,8 @@ public class SoundPrims {
 		primTable["midiInstrument:"]				= primSetInstrument;
 		
 		/* START Laptop Orchestra */
-		primTable["addNote:"]						= primAddNote;
+		primTable["addNote:"]						= primAddOrPlay;
+		primTable["addRest:"]						= primAddRest;
 		primTable["sendToServer:"]					= primSendToServer;
 		primTable["sendToServerAt:"]				= primSendToServerAt;
 		primTable["playChord:"]						= primPlayChord;
@@ -161,7 +162,7 @@ public class SoundPrims {
 		
 	}
 	
-	private function primTest(b:Block):void {
+	private function primAddOrPlay(b:Block):void {
 		
 		// added by Matt Vaughan -- sends data to server!!! or plays the blocks locally if there is no special hat
 		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
@@ -172,21 +173,44 @@ public class SoundPrims {
 		}
 	}
 	
+	private function primAddRest( b:Block ):void {
+		var s:ScratchObj = interp.targetObj();
+		if (s == null) return;
+		if (interp.activeThread.firstTime) {
+			var beats:Number = interp.numarg(b, 0);
+			var broadcastString:String = new String("@addrest(" + beats +")" );
+			
+			if ( b.topBlock().op == "sendToServerAt:" ) {
+				var startOffset:Number = interp.numarg( b.topBlock(), 1 );	
+				broadcastString = "!@queue('"+broadcastString+"',@+(@currentphrase(),"+ startOffset +"))";
+			}
+			else {
+				broadcastString = "!"+broadcastString;
+			}
+			
+			SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
+			interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
+		} else {
+			interp.checkTimer();						// Checking to see that we're done executing this block - Matt Vaughan Aug/17/2012
+		}	
+	}
+	
 	private function primAddNote( b:Block ):void {
 		var s:ScratchObj = interp.targetObj();
 		if (s == null) return;
 		if (interp.activeThread.firstTime) {
 			var key:int = interp.numarg(b, 0);
 			var beats:Number = interp.numarg(b, 1);
-			var phraseNum:int = interp.numarg( b.topBlock(), 0 );
 			var broadcastString:String = new String("@addnote(" + key + "," + beats +")" );
 			
 			if ( b.topBlock().op == "sendToServerAt:" ) {
-				broadcastString = "!@queue('"+broadcastString+"',@+("+ interp.numarg(b.topBlock(), 1)+",@currentphrase())" +")";
+				var startOffset:Number = interp.numarg( b.topBlock(), 1 );	
+				broadcastString = "!@queue('"+broadcastString+"',@+(@currentphrase(),"+ startOffset +"))";
 			}
 			else {
 				broadcastString = "!"+broadcastString;
 			}
+			
 			SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
 			interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
 		} else {
@@ -224,14 +248,14 @@ public class SoundPrims {
 			
 			var hostAddr:String 	= interp.arg( b, 0 );				// address of host from argument
 			var startOffset:Number 	= interp.numarg( b, 1 );			// start messure offset (play at cm+this number)
-			var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at cm+this number)
+			//var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at cm+this number)
 
 			if ( ! SocketConnect.getInstance().isConnected() ) {
 				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
 			}
 			
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," +startOffset +"))");	// clears the phrase we start on
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," +endOffset+ "))");		// clears phrase we want to STOP playing on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + startOffset +"))");	// clears the phrase we start on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + (startOffset+2) + "))");		// clears phrase we want to STOP playing on
 
 			interp.startTimer( interpWait );
 		}
@@ -282,7 +306,7 @@ public class SoundPrims {
 		var tempS:String = b.op;
 		
 		if ( tempS == "addNote:" ) {
-			primTest( b );
+			primAddOrPlay( b );
 		}
 	}
 /* END OF LAPTOP ORCHESTRA CODE ************************/	
