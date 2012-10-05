@@ -36,14 +36,12 @@ public class SoundPrims {
 		primTable["noteOn:duration:elapsed:from:"]	= primPlayNote;
 		primTable["midiInstrument:"]				= primSetInstrument;
 		
-		/* TEST - Matt Vaughan */
+		/* START Laptop Orchestra */
 		primTable["addNote:"]						= primAddNote;
 		primTable["sendToServer:"]					= primSendToServer;
-		/* END OF TEST */
-		
-		/* TEST - Angelo Gamarra */
+		primTable["sendToServerAt:"]				= primSendToServerAt;
 		primTable["playChord:"]						= primPlayChord;
-		/* END OF TEST */
+		/* END Laptop Orchestra */
 		
 		primTable["changeVolumeBy:"]	= primChangeVolume;
 		primTable["setVolumeTo:"]		= primSetVolume;
@@ -155,7 +153,7 @@ public class SoundPrims {
 		var instrumentNumber:Number = interp.numarg(b, 0);
 		if (s != null) s.setInstrument( instrumentNumber );
 		
-		if ( b.topBlock().op == "sendToServer:" ) {
+		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
 			var broadcastString:String = new String("!@setinstrument(" + instrumentNumber +")" );
 			SocketConnect.getInstance().sendData( broadcastString );
 		}
@@ -166,7 +164,7 @@ public class SoundPrims {
 	private function primTest(b:Block):void {
 		
 		// added by Matt Vaughan -- sends data to server!!! or plays the blocks locally if there is no special hat
-		if ( b.topBlock().op == "sendToServer:" ) {
+		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
 			primAddNote( b );
 		}
 		else {
@@ -181,8 +179,14 @@ public class SoundPrims {
 			var key:int = interp.numarg(b, 0);
 			var beats:Number = interp.numarg(b, 1);
 			var phraseNum:int = interp.numarg( b.topBlock(), 0 );
-			var broadcastString:String = new String("!@addnote(" + key + "," + beats +")" );
+			var broadcastString:String = new String("@addnote(" + key + "," + beats +")" );
 			
+			if ( b.topBlock().op == "sendToServerAt:" ) {
+				broadcastString = "!@queue('"+broadcastString+"',@+("+ interp.numarg(b.topBlock(), 1)+",@currentphrase())" +")";
+			}
+			else {
+				broadcastString = "!"+broadcastString;
+			}
 			SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
 			interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
 		} else {
@@ -212,13 +216,37 @@ public class SoundPrims {
 		}
 	}
 	
+	private function primSendToServerAt( b:Block ):void {
+		
+		var s:ScratchObj = interp.targetObj();
+		if ( s == null ) return;
+		if ( interp.activeThread.firstTime ) {
+			
+			var hostAddr:String 	= interp.arg( b, 0 );				// address of host from argument
+			var startOffset:Number 	= interp.numarg( b, 1 );			// start messure offset (play at cm+this number)
+			var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at cm+this number)
+
+			if ( ! SocketConnect.getInstance().isConnected() ) {
+				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
+			}
+			
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," +startOffset +"))");	// clears the phrase we start on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," +endOffset+ "))");		// clears phrase we want to STOP playing on
+
+			interp.startTimer( interpWait );
+		}
+		else {
+			interp.checkTimer();
+		}
+	}
+	
 	// Incomplete test function for playChord Block (needs note synchronization and iteration of numerous blocks) - Angelo Gamarra Sept/21/2012
 	private function primPlayChord( b:Block ):void {
 		
 		var s:ScratchObj = interp.targetObj();
 		if ( s == null ) return;
 		
-		if ( b.topBlock().op == "sendToServer:" ) {
+		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
 			if ( interp.activeThread.firstTime ) {
 			
 				var tmpB:Block = b.subStack1;
