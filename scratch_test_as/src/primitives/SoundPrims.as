@@ -255,7 +255,7 @@ public class SoundPrims {
 			}
 			
 			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + startOffset +"))");	// clears the phrase we start on
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + (startOffset+2) + "))");		// clears phrase we want to STOP playing on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + (startOffset+1) + "))");		// clears phrase we want to STOP playing on
 
 			interp.startTimer( interpWait );
 		}
