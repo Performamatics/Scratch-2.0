@@ -40,7 +40,8 @@ public class SoundPrims {
 		primTable["addNote:"]						= primAddOrPlay;
 		primTable["addRest:"]						= primAddRest;
 		primTable["sendToServer:"]					= primSendToServer;
-		primTable["sendToServerAt:"]				= primSendToServerAt;
+		primTable["sendToServerAt:"]				= primSendToServerAtRelative;
+		primTable["sendToServerAtE:"]				= primSendToServerAtExact;
 		primTable["playChord:"]						= primPlayChord;
 		/* END Laptop Orchestra */
 		
@@ -165,7 +166,7 @@ public class SoundPrims {
 	private function primAddOrPlay(b:Block):void {
 		
 		// added by Matt Vaughan -- sends data to server!!! or plays the blocks locally if there is no special hat
-		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
+		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" || b.topBlock().op == "sendToServerAtE:" ) {
 			primAddNote( b );
 		}
 		else {
@@ -201,11 +202,16 @@ public class SoundPrims {
 		if (interp.activeThread.firstTime) {
 			var key:int = interp.numarg(b, 0);
 			var beats:Number = interp.numarg(b, 1);
-			var broadcastString:String = new String("@addnote(" + key + "," + beats +")" );
+			var broadcastString:String = new String("@addnote(" + key + "," + beats.valueOf() +")" );
+			var startOffset:Number;
 			
 			if ( b.topBlock().op == "sendToServerAt:" ) {
-				var startOffset:Number = interp.numarg( b.topBlock(), 1 );	
+				startOffset = interp.numarg( b.topBlock(), 1 );	
 				broadcastString = "!@queue('"+broadcastString+"',@+(@currentphrase(),"+ startOffset +"))";
+			}
+			else if ( b.topBlock().op == "sendToServerAtE:" ) {
+				startOffset = interp.numarg( b.topBlock(), 1 );
+				broadcastString = "!@queue('"+broadcastString+"',"+ startOffset +")";
 			}
 			else {
 				broadcastString = "!"+broadcastString;
@@ -240,7 +246,7 @@ public class SoundPrims {
 		}
 	}
 	
-	private function primSendToServerAt( b:Block ):void {
+	private function primSendToServerAtRelative( b:Block ):void {
 		
 		var s:ScratchObj = interp.targetObj();
 		if ( s == null ) return;
@@ -248,15 +254,39 @@ public class SoundPrims {
 			
 			var hostAddr:String 	= interp.arg( b, 0 );				// address of host from argument
 			var startOffset:Number 	= interp.numarg( b, 1 );			// start messure offset (play at cm+this number)
-			//var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at cm+this number)
+			var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at cm+this number)
 
 			if ( ! SocketConnect.getInstance().isConnected() ) {
 				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
 			}
 			
 			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + startOffset +"))");	// clears the phrase we start on
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + (startOffset+1) + "))");		// clears phrase we want to STOP playing on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',@+(@currentphrase()," + (startOffset+endOffset+1) + "))");		// clears phrase we want to STOP playing on
 
+			interp.startTimer( interpWait );
+		}
+		else {
+			interp.checkTimer();
+		}
+	}
+	
+	private function primSendToServerAtExact( b:Block ):void {
+		
+		var s:ScratchObj = interp.targetObj();
+		if ( s == null ) return;
+		if ( interp.activeThread.firstTime ) {
+			
+			var hostAddr:String 	= interp.arg( b, 0 );				// address of host from argument
+			var startOffset:Number 	= interp.numarg( b, 1 );			// start messure offset (play at this number)
+			var endOffset:Number 	= interp.numarg( b, 2 );			// end messure offset  (stop playing at this number)
+			
+			if ( ! SocketConnect.getInstance().isConnected() ) {
+				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
+			}
+			
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ startOffset +")");	// clears the phrase we start on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ endOffset + ")");		// clears phrase we want to STOP playing on
+			
 			interp.startTimer( interpWait );
 		}
 		else {
