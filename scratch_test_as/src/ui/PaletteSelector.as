@@ -16,7 +16,7 @@ public class PaletteSelector extends Sprite {
 
 	public function PaletteSelector(app:Scratch) {
 		this.app = app;
-		initCategories(Specs.categories.slice(1, 11));
+		initCategories(Specs.categories.slice(1, 13));
 	}
 
 	public function select(id:int):void {
@@ -29,7 +29,7 @@ public class PaletteSelector extends Sprite {
 	}
 
 	private function initCategories(specs:Array):void {
-		const numberOfRows:int = 5;
+		const numberOfRows:int = 6;
 		const w:int = 200;
 		const startY:int = 3;
 		var itemH:int;
