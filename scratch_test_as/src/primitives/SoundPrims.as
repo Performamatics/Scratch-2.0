@@ -180,10 +180,15 @@ public class SoundPrims {
 		if (interp.activeThread.firstTime) {
 			var beats:Number = interp.numarg(b, 0);
 			var broadcastString:String = new String("@addrest(" + beats +")" );
+			var startOffset:Number;
 			
 			if ( b.topBlock().op == "sendToServerAt:" ) {
-				var startOffset:Number = interp.numarg( b.topBlock(), 1 );	
+				startOffset = interp.numarg( b.topBlock(), 1 );	
 				broadcastString = "!@queue('"+broadcastString+"',@+(@currentphrase(),"+ startOffset +"))";
+			}
+			else if ( b.topBlock().op == "sendToServerE:" ) {
+				startOffset = interp.numarg( b.topBlock(), 1 );	
+				broadcastString = "!@queue('"+broadcastString+"',"+ startOffset +")";
 			}
 			else {
 				broadcastString = "!"+broadcastString;
@@ -284,8 +289,8 @@ public class SoundPrims {
 				SocketConnect.getInstance().connectTo( hostAddr );		// connect to host (if not connected allready)
 			}
 			
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ startOffset +")");	// clears the phrase we start on
-			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ endOffset + ")");		// clears phrase we want to STOP playing on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ startOffset +")");					// clears the phrase we start on
+			SocketConnect.getInstance().sendData("!@queue('@clearphrase()',"+ (startOffset+endOffset+1) + ")");		// clears phrase we want to STOP playing on
 			
 			interp.startTimer( interpWait );
 		}

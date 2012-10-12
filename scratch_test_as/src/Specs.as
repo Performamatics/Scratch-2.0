@@ -160,8 +160,8 @@ public class Specs {
 
 		// Laptop Orchestra
 		["send to server at %s",						"h", 13, "sendToServer:",			"127.0.0.1"],		// Matt Vaughan Sep/1/2012
-		["send to server at %s from cphrase+ %d for %d","h", 13, "sendToServerAt:",			"127.0.0.1", 1, 1],	// Matt Vaughan Oct/5/2012
-		["send to server at %s from phrase+ %d to %d",	"h", 13, "sendToServerAtE:",		"127.0.0.1", 1, 2],	// Matt Vaughan Oct/12/2012
+		["send to server at %s from chrase+%d for %d",	"h", 13, "sendToServerAt:",			"127.0.0.1", 1, 1],	// Matt Vaughan Oct/5/2012
+		["send to server at %s from phrase %d for %d",	"h", 13, "sendToServerAtE:",		"127.0.0.1", 1, 2],	// Matt Vaughan Oct/12/2012
 		//["Play from measure %d to %d at %s",			"h", 13, "sendFuturePhrase:", 0, 1, "127.0.0.1"],		// Angelo Gamarra Sep/27/2012 new hat block for measures with length
 		["play note %d.midinote for %n beats", 			" ", 13, "addNote:",					60, 0.5],		// Brendan Reilly Sep/22/2012 added %d.midinote (look in BlockMenus.as)
 		["play rest for %n beats",						" ", 13, "addRest:",						0.5],		// Matt Vaughan Oct/5/2012
