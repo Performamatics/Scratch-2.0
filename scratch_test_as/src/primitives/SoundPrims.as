@@ -229,6 +229,47 @@ public class SoundPrims {
 		}		
 	}
 	
+	
+	/* Add block with constants function. Commented out for now until I know how to implement it alongside doubles. Brendan 10/18/2012 
+	 *
+	private function primAddNote( b:Block ):void {
+	    var s:ScratchObj = interp.targetObj();
+	    if (s == null) return;
+	    if (interp.activeThread.firstTime) {
+	        var key:int = interp.numarg(b, 0);
+	        var beats:Number = interp.numarg(b, 1);
+	        var duration:String;
+	
+          	if ( beats.valueOf() == 0.5 ) {
+	            duration = "'EN'";
+	        } else if ( beats.valueOf() == 1 ) {
+	            duration = "'QN'";
+	        } else if ( beats.valueOf() == 2 ) {
+	            duration = "'HN'";
+	        } else if ( beats.valueOf() == 4 ) {
+	            duration = "'WN'";
+	        } else {
+	            duration = "'QN'";
+	        }
+	
+	        var broadcastString:String = new String("@addnote(" + duration + "," + key +")" );
+	
+	        if ( b.topBlock().op == "sendToServerAt:" ) {
+	            var startOffset:Number = interp.numarg( b.topBlock(), 1 );	
+	            broadcastString = "!@queue('"+broadcastString+"',@+(@currentphrase(),"+ startOffset +"))";
+	        }
+	        else {
+	            broadcastString = "!"+broadcastString;
+	        }
+	
+	        SocketConnect.getInstance().sendData( broadcastString ); // added by Matt Vaughan -- sends data to server!!
+	        interp.startTimer( interpWait );					// execution time... so we don't flood the socket causing an exception on the server side
+	        } else {
+	            interp.checkTimer();						// Checking to see that we're done executing this block - Matt Vaughan Aug/17/2012
+	        }		
+	    }
+	*/
+	
 	private function primSendToServer( b:Block ):void {
 		
 		var s:ScratchObj = interp.targetObj();
