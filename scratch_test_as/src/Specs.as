@@ -167,6 +167,7 @@ public class Specs {
 		["play rest for %n beats",						" ", 13, "addRest:",						0.5],		// Matt Vaughan Oct/5/2012
 		["set instrument to %d.instrument",				" ", 13, "midiInstrument:",					  1],		// Brendan Reilly (look in BlockMenus.as)
 							// NOTE - MV - oct/5 - fix setInstrument to use new function, not midiInstrument
+		//["set measure length to %d ",					" ", 13, "setMeasureLengt:",				  4],		// Angelo Gamarra (new block to change measure length)
 		["play chord",									"c", 13, "playChord:"],									// Angelo Gamarra Sep/6/2012
 		
 		// sound

@@ -43,6 +43,7 @@ public class SoundPrims {
 		primTable["sendToServerAt:"]				= primSendToServerAtRelative;
 		primTable["sendToServerAtE:"]				= primSendToServerAtExact;
 		primTable["playChord:"]						= primPlayChord;
+		//primTable["setMeasureLength:"]			= primSetMeasureLength;
 		/* END Laptop Orchestra */
 		
 		primTable["changeVolumeBy:"]	= primChangeVolume;
@@ -162,6 +163,18 @@ public class SoundPrims {
 
 		
 	}
+	
+	/*private function primSetMeasureLength(b:Block):void {
+		var s:ScratchObj = interp.targetObj();
+		var measureLength:Number = interp.numarg(b, 0);
+		
+		if (s == null) return;
+		
+		if ( b.topBlock().op == "sendToServer:" || b.topBlock().op == "sendToServerAt:" ) {
+			var broadcastString:String = new String("!@setMeasureLength(" + measureLength +")" );
+			SocketConnect.getInstance().sendData( broadcastString );
+		}
+	}*/
 	
 	private function primAddOrPlay(b:Block):void {
 		
@@ -340,7 +353,7 @@ public class SoundPrims {
 		}
 	}
 	
-	// Incomplete test function for playChord Block (needs note synchronization and iteration of numerous blocks) - Angelo Gamarra Sept/21/2012
+	// Incomplete test function for playChord Block (needs note synchronization on local side) - Angelo Gamarra Sept/21/2012
 	private function primPlayChord( b:Block ):void {
 		
 		var s:ScratchObj = interp.targetObj();
