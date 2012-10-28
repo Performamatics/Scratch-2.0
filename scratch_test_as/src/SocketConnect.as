@@ -51,6 +51,8 @@ public class SocketConnect {
 	public function disconnect():void {
 				
 		if ( sock.connected ) {
+			sock.writeUTF( "ClosingClientConnection" );
+			sock.flush();
 			sock.close();
 		}
 	}
